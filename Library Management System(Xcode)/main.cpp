@@ -163,21 +163,6 @@ void writeBookDetails(){
     adminPanel();
 }
 
-void writeStudentDetails(){
-    char ch;
-    file.open("students.txt",ios::out|ios::app);
-    do{
-        STUDENT.addStudent();
-        file.write((char*)&STUDENT,sizeof(student));
-        cout<<"\n\ndo you want to add more Students? (Y/N)";
-        cin>>ch;
-    }while(ch=='y'||ch=='Y');
-    file.close();
-    getchar();
-    system("clear");
-    adminPanel();
-}
-
 void displaySpecificBookAdmin(char n[]){
     cout<<"\nBook detail\n";
     int found=0;
@@ -212,6 +197,108 @@ void displaySpecificBook(char n[]){
     }
     getchar();
     studentPanel();
+}
+
+void modifybook(){
+    char n[6];
+    int found=0;
+    cout<<"\n\n\tEnter Book ID: ";
+    cin>>n;
+    file.open("books.txt",ios::in|ios::out);
+    while(file.read((char*)&BOOK,sizeof(book)) && found==0){
+        if(strcasecmp(BOOK.returnBookId(),n)==0){
+            BOOK.showBook();
+            cout<<"\nEnter New Details"<<endl;
+            BOOK.modifyBook();
+            int pos=-1*sizeof(BOOK);
+            file.seekp(pos,ios::cur);
+            file.write((char*)&BOOK,sizeof(book));
+            cout<<"Book Details Updated";
+            found=1;
+        }
+    }
+    file.close();
+    if(found==0){
+        cout<<"\n\nBook Not Found ";
+    }
+    getchar();
+    system("clear");
+    adminPanel();
+}
+
+void deleteBook(){
+    char n[6];
+    cout<<"\n\nEnter Book ID: ";
+    cin>>n;
+    file.open("books.txt",ios::in|ios::out);
+    fstream file2;
+    file2.open("Temp.txt",ios::out);
+    file.seekg(0,ios::beg);
+    while(file.read((char*)&BOOK,sizeof(book))){
+        if(strcasecmp(BOOK.returnBookId(),n)!=0){
+            file2.write((char*)&BOOK,sizeof(book));
+        }
+    }
+    file2.close();
+    file.close();
+    remove("books.txt");
+    rename("Temp.txt","books.txt");
+    cout<<"\n\n\tBook Deleted Successfully";
+    getchar();
+    adminPanel();
+}
+
+void displayAllBook(){
+    file.open("books.txt",ios::in);
+    if(!file){
+        cout<<"Error! File Not Found";
+        getchar();
+        return;
+    }
+    cout<<"\n\n\t\tAll Books\n\n";
+    cout<<"*************************************************************************\n";
+    cout<<"Book ID"<<setw(20)<<"Book Name"<<setw(25)<<"Author Name\n";
+    cout<<"*************************************************************************\n";
+    while(file.read((char*)&BOOK,sizeof(book))){
+        BOOK.report();
+    }
+    file.close();
+    getchar();
+    studentPanel();
+}
+
+void displayAllBookAdmin(){
+    file.open("books.txt",ios::in);
+    if(!file){
+        cout<<"Error! File Not Found";
+        getchar();
+        return;
+    }
+    cout<<"\n\n\t\tAll Books\n\n";
+    cout<<"*************************************************************************\n";
+    cout<<"Book ID"<<setw(20)<<"Book Name"<<setw(25)<<"Author Name\n";
+    cout<<"*************************************************************************\n";
+    while(file.read((char*)&BOOK,sizeof(book))){
+        BOOK.report();
+    }
+    file.close();
+    getchar();
+    adminPanel();
+}
+
+void writeStudentDetails(){
+    char ch;
+    file.open("students.txt",ios::out|ios::app);
+    do{
+        STUDENT.addStudent();
+        file.write((char*)&STUDENT,sizeof(student));
+        cout<<"\n\ndo you want to add more Students? (Y/N)";
+        cin>>ch;
+    }while(ch=='y'||ch=='Y');
+    file.close();
+    getchar();
+    system("clear");
+    adminPanel();
 }
 
 void displaySpecificStudentAdmin(char n[]){
@@ -249,33 +336,6 @@ void displaySpecificStudent(char n[]){
     getchar();
     system("clear");
     studentPanel();
-}
-
-void modifybook(){
-    char n[6];
-    int found=0;
-    cout<<"\n\n\tEnter Book ID: ";
-    cin>>n;
-    file.open("books.txt",ios::in|ios::out);
-    while(file.read((char*)&BOOK,sizeof(book)) && found==0){
-        if(strcasecmp(BOOK.returnBookId(),n)==0){
-            BOOK.showBook();
-            cout<<"\nEnter New Details"<<endl;
-            BOOK.modifyBook();
-            int pos=-1*sizeof(BOOK);
-            file.seekp(pos,ios::cur);
-            file.write((char*)&BOOK,sizeof(book));
-            cout<<"Book Details Updated";
-            found=1;
-        }
-    }
-    file.close();
-    if(found==0){
-        cout<<"\n\nBook Not Found ";
-    }
-    getchar();
-    system("clear");
-    adminPanel();
 }
 
 void modifyStudent(){
@@ -334,28 +394,6 @@ void deleteStudent(){
     adminPanel();
 }
 
-void deleteBook(){
-    char n[6];
-    cout<<"\n\nEnter Book ID: ";
-    cin>>n;
-    file.open("books.txt",ios::in|ios::out);
-    fstream file2;
-    file2.open("Temp.txt",ios::out);
-    file.seekg(0,ios::beg);
-    while(file.read((char*)&BOOK,sizeof(book))){
-        if(strcasecmp(BOOK.returnBookId(),n)!=0){
-            file2.write((char*)&BOOK,sizeof(book));
-        }
-    }
-    file2.close();
-    file.close();
-    remove("books.txt");
-    rename("Temp.txt","books.txt");
-    cout<<"\n\n\tBook Deleted Successfully";
-    getchar();
-    adminPanel();
-}
-
 void displayAllStudent(){
     file.open("students.txt",ios::in);
     if(!file){
@@ -388,44 +426,6 @@ void displayAllStudentAdmin(){
     cout<<"******************************************************************\n";
     while(file.read((char*)&STUDENT,sizeof(student))){
         STUDENT.report();
-    }
-    file.close();
-    getchar();
-    adminPanel();
-}
-
-void displayAllBook(){
-    file.open("books.txt",ios::in);
-    if(!file){
-        cout<<"Error! File Not Found";
-        getchar();
-        return;
-    }
-    cout<<"\n\n\t\tAll Books\n\n";
-    cout<<"*************************************************************************\n";
-    cout<<"Book ID"<<setw(20)<<"Book Name"<<setw(25)<<"Author Name\n";
-    cout<<"*************************************************************************\n";
-    while(file.read((char*)&BOOK,sizeof(book))){
-        BOOK.report();
-    }
-    file.close();
-    getchar();
-    studentPanel();
-}
-
-void displayAllBookAdmin(){
-    file.open("books.txt",ios::in);
-    if(!file){
-        cout<<"Error! File Not Found";
-        getchar();
-        return;
-    }
-    cout<<"\n\n\t\tAll Books\n\n";
-    cout<<"*************************************************************************\n";
-    cout<<"Book ID"<<setw(20)<<"Book Name"<<setw(25)<<"Author Name\n";
-    cout<<"*************************************************************************\n";
-    while(file.read((char*)&BOOK,sizeof(book))){
-        BOOK.report();
     }
     file.close();
     getchar();
@@ -694,4 +694,3 @@ int main(){
     welcome();
     mainMenu();
 }
-
